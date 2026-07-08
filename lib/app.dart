@@ -1,7 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:pgold_app/screens/dashboard_screen.dart';
+import 'package:pgold_app/services/mock_api_service.dart';
+import 'package:pgold_app/stores/dashboard_store.dart';
 
-class PGoldApp extends StatelessWidget {
+class PGoldApp extends StatefulWidget {
   const PGoldApp({super.key});
+
+  @override
+  State<PGoldApp> createState() => _PGoldAppState();
+}
+
+class _PGoldAppState extends State<PGoldApp> {
+  final _apiService = MockApiService();
+  late final DashboardStore _dashboardStore;
+
+  @override
+  void initState() {
+    super.initState();
+    _dashboardStore = DashboardStore(_apiService);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -15,11 +32,21 @@ class PGoldApp extends StatelessWidget {
         ),
         useMaterial3: true,
       ),
-      home: const Scaffold(
-        body: Center(
-          child: Text('PGold Wallet'),
-        ),
-      ),
+      home: DashboardScreen(dashboardStore: _dashboardStore),
+      onGenerateRoute: (settings) {
+        switch (settings.name) {
+          case '/transaction-details':
+            final id = settings.arguments as String;
+            return MaterialPageRoute(
+              builder: (_) => Scaffold(
+                appBar: AppBar(title: Text('Transaction $id')),
+                body: const Center(child: Text('Coming soon...')),
+              ),
+            );
+          default:
+            return null;
+        }
+      },
     );
   }
 }
