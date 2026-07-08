@@ -1,5 +1,6 @@
 {
   "user": {
+    "id": "usr_001",
     "name": "Chidi",
     "wallet_balance": 250000.75,
     "kyc_level": "Tier 2"
