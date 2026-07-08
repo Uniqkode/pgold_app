@@ -1,0 +1,61 @@
+{
+  "user": {
+    "name": "Chidi",
+    "wallet_balance": 250000.75,
+    "kyc_level": "Tier 2"
+  },
+  "transactions": [
+    {
+      "id": "txn_001",
+      "reference": "PG-20260707-001",
+      "title": "Wallet Funding",
+      "amount": 50000,
+      "fee": 0,
+      "type": "wallet_funding",
+      "status": "successful",
+      "direction": "credit",
+      "description": "Wallet funded via bank transfer",
+      "date": "2026-07-07T10:30:00Z",
+      "has_active_report": false
+    },
+    {
+      "id": "txn_002",
+      "reference": "PG-20260707-002",
+      "title": "Withdrawal",
+      "amount": 20000,
+      "fee": 100,
+      "type": "withdrawal",
+      "status": "pending",
+      "direction": "debit",
+      "description": "Withdrawal to saved bank account",
+      "date": "2026-07-07T12:10:00Z",
+      "has_active_report": false
+    },
+    {
+      "id": "txn_003",
+      "reference": "PG-20260707-003",
+      "title": "Gift Card Trade",
+      "amount": 85000,
+      "fee": 0,
+      "type": "gift_card_trade",
+      "status": "failed",
+      "direction": "credit",
+      "description": "Gift card trade payout",
+      "date": "2026-07-06T09:15:00Z",
+      "has_active_report": false
+    },
+    {
+      "id": "txn_004",
+      "reference": "PG-20260707-004",
+      "title": "Crypto Trade",
+      "amount": 120000,
+      "fee": 500,
+      "type": "crypto_trade",
+      "status": "successful",
+      "direction": "credit",
+      "description": "Crypto sale payout",
+      "date": "2026-07-05T16:45:00Z",
+      "has_active_report": true
+    }
+  ]
+}
