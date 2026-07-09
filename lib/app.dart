@@ -40,7 +40,7 @@ class _PGoldAppState extends State<PGoldApp> {
         switch (settings.name) {
           case '/transaction-details':
             final id = settings.arguments as String;
-            return MaterialPageRoute(
+            return MaterialPageRoute<void>(
               builder: (_) => TransactionDetailScreen(
                 transactionId: id,
                 apiService: _apiService,
@@ -48,7 +48,7 @@ class _PGoldAppState extends State<PGoldApp> {
             );
           case '/report-transaction':
             final args = settings.arguments as Map<String, dynamic>;
-            return MaterialPageRoute(
+            return MaterialPageRoute<bool>(
               builder: (_) => ReportScreen(
                 transactionId: args['transactionId'] as String,
                 apiService: args['apiService'] as ApiService,
