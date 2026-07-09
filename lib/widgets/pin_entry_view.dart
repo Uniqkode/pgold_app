@@ -7,13 +7,21 @@ import 'package:pgold_app/widgets/pin_keypad.dart';
 class PinEntryView extends StatefulWidget {
   final ApiService apiService;
   final VoidCallback onVerified;
+  final String title;
+  final String? amountLabel;
+  final String? amount;
   final String? subtitle;
+  final VoidCallback? onForgotPin;
 
   const PinEntryView({
     super.key,
     required this.apiService,
     required this.onVerified,
+    this.title = 'Enter PIN',
+    this.amountLabel,
+    this.amount,
     this.subtitle,
+    this.onForgotPin,
   });
 
   @override
@@ -26,6 +34,8 @@ class _PinEntryViewState extends State<PinEntryView>
   late final AnimationController _shakeController;
   late final Animation<double> _shakeAnimation;
   String? _lastError;
+  bool _useFingerprint = false;
+  bool _showKeypad = true;
 
   @override
   void initState() {
@@ -37,15 +47,16 @@ class _PinEntryViewState extends State<PinEntryView>
       duration: const Duration(milliseconds: 400),
     );
 
-    _shakeAnimation = TweenSequence<double>([
-      TweenSequenceItem(tween: Tween(begin: 0, end: -12), weight: 1),
-      TweenSequenceItem(tween: Tween(begin: -12, end: 12), weight: 2),
-      TweenSequenceItem(tween: Tween(begin: 12, end: -10), weight: 2),
-      TweenSequenceItem(tween: Tween(begin: -10, end: 10), weight: 2),
-      TweenSequenceItem(tween: Tween(begin: 10, end: 0), weight: 1),
-    ]).animate(
-      CurvedAnimation(parent: _shakeController, curve: Curves.easeInOut),
-    );
+    _shakeAnimation =
+        TweenSequence<double>([
+          TweenSequenceItem(tween: Tween(begin: 0, end: -12), weight: 1),
+          TweenSequenceItem(tween: Tween(begin: -12, end: 12), weight: 2),
+          TweenSequenceItem(tween: Tween(begin: 12, end: -10), weight: 2),
+          TweenSequenceItem(tween: Tween(begin: -10, end: 10), weight: 2),
+          TweenSequenceItem(tween: Tween(begin: 10, end: 0), weight: 1),
+        ]).animate(
+          CurvedAnimation(parent: _shakeController, curve: Curves.easeInOut),
+        );
   }
 
   void _onDigitPressed(String digit) {
@@ -76,63 +87,139 @@ class _PinEntryViewState extends State<PinEntryView>
           });
           return _buildVerifying(theme);
         }
-        return _buildPinEntry(theme);
+
+        return SizedBox.expand(
+          child: Column(
+            children: [
+              Expanded(
+                child: Center(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 24,
+                    ),
+                    child: _buildPinCard(theme),
+                  ),
+                ),
+              ),
+              if (_showKeypad)
+                SafeArea(
+                  top: false,
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: SecurePinKeypad(
+                      enabled: !_pinStore.isVerifying,
+                      verticalSpacing: 10,
+                      horizontalSpacing: 12,
+                      onDigitPressed: _onDigitPressed,
+                      onBackspacePressed: _pinStore.removeDigit,
+                      onClosePressed: () => setState(() => _showKeypad = false),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        );
       },
     );
   }
 
-  Widget _buildPinEntry(ThemeData theme) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        if (widget.subtitle != null)
-          Padding(
-            padding: const EdgeInsets.only(bottom: 20),
-            child: Text(
-              widget.subtitle!,
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: Colors.grey[600],
+  Widget _buildPinCard(ThemeData theme) {
+    return Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      elevation: 4,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              widget.title,
+              style: theme.textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.w700,
               ),
-              textAlign: TextAlign.center,
             ),
-          ),
-        AnimatedBuilder(
-          animation: _shakeAnimation,
-          builder: (context, child) => Transform.translate(
-            offset: Offset(_shakeAnimation.value, 0),
-            child: child,
-          ),
-          child: _buildPinDots(theme),
+            if (widget.amount != null || widget.amountLabel != null) ...[
+              const SizedBox(height: 16),
+              if (widget.amountLabel != null)
+                Text(
+                  widget.amountLabel!,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: Colors.grey[600],
+                  ),
+                ),
+              if (widget.amount != null) ...[
+                const SizedBox(height: 4),
+                Text(
+                  widget.amount!,
+                  style: theme.textTheme.headlineMedium?.copyWith(
+                    color: theme.colorScheme.primary,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ],
+            ],
+            const SizedBox(height: 24),
+            GestureDetector(
+              onTap: () => setState(() => _showKeypad = true),
+              child: AnimatedBuilder(
+                animation: _shakeAnimation,
+                builder: (context, child) => Transform.translate(
+                  offset: Offset(_shakeAnimation.value, 0),
+                  child: child,
+                ),
+                child: _buildPinDots(theme),
+              ),
+            ),
+            if (_pinStore.verificationError != null) ...[
+              const SizedBox(height: 14),
+              Text(
+                _pinStore.verificationError!,
+                style: const TextStyle(color: Colors.red, fontSize: 13),
+              ),
+            ],
+            const SizedBox(height: 12),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Expanded(
+                  child: Text(
+                    _pinStore.isVerifying
+                        ? 'Verifying PIN...'
+                        : '${_pinStore.remainingAttempts} attempt(s) remaining',
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                ),
+                if (widget.onForgotPin != null)
+                  TextButton(
+                    style: TextButton.styleFrom(
+                      padding: EdgeInsets.zero,
+                      minimumSize: const Size(0, 24),
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    ),
+                    onPressed: widget.onForgotPin,
+                    child: Text(
+                      'Forgot my PIN',
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.colorScheme.primary,
+                        decoration: TextDecoration.underline,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+            const SizedBox(height: 18),
+            _buildFingerprintToggle(theme),
+            if (_pinStore.isVerifying)
+              const Padding(
+                padding: EdgeInsets.only(top: 16),
+                child: CircularProgressIndicator(),
+              ),
+          ],
         ),
-        if (_pinStore.verificationError != null) ...[
-          const SizedBox(height: 12),
-          Text(
-            _pinStore.verificationError!,
-            style: TextStyle(color: Colors.red[700], fontSize: 13),
-          ),
-        ],
-        if (!_pinStore.isLocked) ...[
-          const SizedBox(height: 8),
-          Text(
-            '${_pinStore.remainingAttempts} attempt(s) remaining',
-            style: TextStyle(color: Colors.grey[500], fontSize: 12),
-          ),
-        ],
-        const SizedBox(height: 20),
-        if (_pinStore.isVerifying)
-          const Padding(
-            padding: EdgeInsets.symmetric(vertical: 32),
-            child: CircularProgressIndicator(),
-          )
-        else
-          PinKeypad(
-            enabled: !_pinStore.isVerifying,
-            verticalSpacing: 10,
-            horizontalSpacing: 12,
-            onDigitPressed: _onDigitPressed,
-            onBackspace: _pinStore.removeDigit,
-          ),
-      ],
+      ),
     );
   }
 
@@ -143,24 +230,71 @@ class _PinEntryViewState extends State<PinEntryView>
         final filled = i < _pinStore.pinLength;
         return Container(
           margin: const EdgeInsets.symmetric(horizontal: 8),
-          width: 48,
-          height: 56,
+          width: 54,
+          height: 62,
           decoration: BoxDecoration(
             border: Border.all(
               color: filled ? theme.colorScheme.primary : Colors.grey[400]!,
-              width: filled ? 2 : 1,
+              width: filled ? 2.2 : 1.4,
             ),
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(18),
           ),
           child: Center(
             child: filled
-                ? Icon(Icons.circle,
-                    size: 14, color: theme.colorScheme.primary)
-                : Icon(Icons.circle_outlined,
-                    size: 14, color: Colors.grey[300]),
+                ? Icon(Icons.circle, size: 16, color: theme.colorScheme.primary)
+                : Icon(
+                    Icons.circle_outlined,
+                    size: 16,
+                    color: Colors.grey[300],
+                  ),
           ),
         );
       }),
+    );
+  }
+
+  Widget _buildFingerprintToggle(ThemeData theme) {
+    return Container(
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surfaceVariant,
+        borderRadius: BorderRadius.circular(18),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+      child: Row(
+        children: [
+          Container(
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(
+              color: theme.colorScheme.primary.withOpacity(0.12),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              Icons.fingerprint,
+              color: theme.colorScheme.primary,
+              size: 20,
+            ),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Text(
+              'Use Fingerprint next time',
+              style: theme.textTheme.bodyMedium?.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+          Switch(
+            value: _useFingerprint,
+            activeColor: theme.colorScheme.primary,
+            onChanged: (value) {
+              setState(() {
+                _useFingerprint = value;
+              });
+            },
+          ),
+        ],
+      ),
     );
   }
 
