@@ -175,17 +175,18 @@ class _TransactionDetailScreenState extends State<TransactionDetailScreen> {
                 SizedBox(
                   width: double.infinity,
                   child: FilledButton.icon(
-                    onPressed: () {
-                      Navigator.of(context).pushNamed(
+                    onPressed: () async {
+                      final reported = await Navigator.of(context)
+                          .pushNamed<bool>(
                         '/report-transaction',
                         arguments: {
                           'transactionId': txn.id,
                           'apiService': widget.apiService,
-                          'onReported': () {
-                            _store.markAsReported();
-                          },
                         },
                       );
+                      if (reported == true) {
+                        _store.markAsReported();
+                      }
                     },
                     icon: const Icon(Icons.flag_rounded),
                     label: const Text('Report Transaction'),

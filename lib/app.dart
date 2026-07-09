@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pgold_app/screens/dashboard_screen.dart';
+import 'package:pgold_app/screens/report_screen.dart';
 import 'package:pgold_app/screens/transaction_detail_screen.dart';
 import 'package:pgold_app/services/api_service.dart';
 import 'package:pgold_app/services/mock_api_service.dart';
@@ -46,7 +47,13 @@ class _PGoldAppState extends State<PGoldApp> {
               ),
             );
           case '/report-transaction':
-            return null;
+            final args = settings.arguments as Map<String, dynamic>;
+            return MaterialPageRoute(
+              builder: (_) => ReportScreen(
+                transactionId: args['transactionId'] as String,
+                apiService: args['apiService'] as ApiService,
+              ),
+            );
           default:
             return null;
         }
