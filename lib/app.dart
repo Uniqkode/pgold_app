@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pgold_app/screens/dashboard_screen.dart';
+import 'package:pgold_app/screens/transaction_detail_screen.dart';
+import 'package:pgold_app/services/api_service.dart';
 import 'package:pgold_app/services/mock_api_service.dart';
 import 'package:pgold_app/stores/dashboard_store.dart';
 
@@ -11,7 +13,7 @@ class PGoldApp extends StatefulWidget {
 }
 
 class _PGoldAppState extends State<PGoldApp> {
-  final _apiService = MockApiService();
+  final ApiService _apiService = MockApiService();
   late final DashboardStore _dashboardStore;
 
   @override
@@ -38,11 +40,13 @@ class _PGoldAppState extends State<PGoldApp> {
           case '/transaction-details':
             final id = settings.arguments as String;
             return MaterialPageRoute(
-              builder: (_) => Scaffold(
-                appBar: AppBar(title: Text('Transaction $id')),
-                body: const Center(child: Text('Coming soon...')),
+              builder: (_) => TransactionDetailScreen(
+                transactionId: id,
+                apiService: _apiService,
               ),
             );
+          case '/report-transaction':
+            return null;
           default:
             return null;
         }
