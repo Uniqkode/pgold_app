@@ -3,6 +3,7 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:pgold_app/models/report.dart';
 import 'package:pgold_app/services/api_service.dart';
 import 'package:pgold_app/stores/report_store.dart';
+import 'package:pgold_app/widgets/pin_dialog.dart';
 
 class ReportScreen extends StatefulWidget {
   final String transactionId;
@@ -28,39 +29,25 @@ class _ReportScreenState extends State<ReportScreen> {
   }
 
   Future<void> _handleSubmit() async {
-    final pin = await _showPinDialog();
-    if (pin == null || !mounted) return;
+    final confirmed = await _showPinDialog();
+    if (confirmed != true || !mounted) return;
 
-    final pinResult = await widget.apiService.verifyTransactionPin(pin);
+    await _reportStore.submitReport(widget.transactionId);
     if (!mounted) return;
 
-    pinResult.when(
-      success: (_) async {
-        await _reportStore.submitReport(widget.transactionId);
-        if (!mounted) return;
-
-        if (_reportStore.submittedReport != null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Report submitted successfully')),
-          );
-          Navigator.of(context).pop(true);
-        }
-      },
-      failure: (message) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(message)),
-          );
-        }
-      },
-    );
+    if (_reportStore.submittedReport != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Report submitted successfully')),
+      );
+      Navigator.of(context).pop(true);
+    }
   }
 
-  Future<String?> _showPinDialog() {
-    return showDialog<String>(
+  Future<bool?> _showPinDialog() {
+    return showDialog<bool>(
       context: context,
       barrierDismissible: false,
-      builder: (ctx) => _SimplePinDialog(),
+      builder: (ctx) => PinDialog(apiService: widget.apiService),
     );
   }
 
@@ -169,107 +156,5 @@ class _ReportScreenState extends State<ReportScreen> {
   void dispose() {
     _reportStore.reset();
     super.dispose();
-  }
-}
-
-class _SimplePinDialog extends StatefulWidget {
-  @override
-  State<_SimplePinDialog> createState() => _SimplePinDialogState();
-}
-
-class _SimplePinDialogState extends State<_SimplePinDialog> {
-  final _pinController = TextEditingController();
-  bool _showError = false;
-  int _attempts = 0;
-
-  void _confirm() {
-    final pin = _pinController.text;
-    if (pin != '1234') {
-      setState(() {
-        _attempts++;
-        _showError = true;
-      });
-      _pinController.clear();
-      return;
-    }
-    Navigator.of(context).pop(pin);
-  }
-
-  @override
-  void dispose() {
-    _pinController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final isLocked = _attempts >= 3;
-
-    return AlertDialog(
-      title: const Text('Enter Transaction PIN'),
-      content: isLocked
-          ? Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.lock_rounded, size: 48, color: Colors.red[400]),
-                const SizedBox(height: 16),
-                const Text(
-                  'Too many incorrect attempts. '
-                  'Please try again later.',
-                  textAlign: TextAlign.center,
-                ),
-              ],
-            )
-          : Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  'Enter your 4-digit transaction PIN to confirm.',
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: Colors.grey[600],
-                  ),
-                ),
-                const SizedBox(height: 16),
-                TextField(
-                  controller: _pinController,
-                  obscureText: true,
-                  maxLength: 4,
-                  keyboardType: TextInputType.number,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(fontSize: 24, letterSpacing: 8),
-                  decoration: InputDecoration(
-                    counterText: '',
-                    border: const OutlineInputBorder(),
-                    errorText:
-                        _showError ? 'Incorrect PIN. Please try again.' : null,
-                  ),
-                  onChanged: (_) => setState(() => _showError = false),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  '${3 - _attempts} attempt(s) remaining',
-                  style: TextStyle(color: Colors.grey[500], fontSize: 12),
-                ),
-                const SizedBox(height: 16),
-                SizedBox(
-                  width: double.infinity,
-                  child: FilledButton(
-                    onPressed:
-                        _pinController.text.length == 4 ? _confirm : null,
-                    child: const Text('Confirm'),
-                  ),
-                ),
-              ],
-            ),
-      actions: [
-        TextButton(
-          onPressed: isLocked
-              ? null
-              : () => Navigator.of(context).pop(),
-          child: const Text('Cancel'),
-        ),
-      ],
-    );
   }
 }
