@@ -35,9 +35,9 @@ class PinDialog extends StatelessWidget {
       context: context,
       barrierDismissible: false,
       barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
-      barrierColor: Colors.black.withOpacity(0.55),
+      barrierColor: Colors.black.withValues(alpha: 0.55),
       transitionDuration: const Duration(milliseconds: 240),
-      pageBuilder: (_, __, ___) => PinDialog(
+      pageBuilder: (_, _, _) => PinDialog(
         apiService: apiService,
         title: title,
         amountLabel: amountLabel,

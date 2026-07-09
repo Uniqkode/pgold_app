@@ -4,6 +4,7 @@ import 'package:pgold_app/models/transaction.dart';
 import 'package:pgold_app/models/user.dart';
 import 'package:pgold_app/services/api_result.dart';
 import 'package:pgold_app/services/api_service.dart';
+import 'package:pgold_app/services/report_persistence_service.dart';
 
 class MockApiService implements ApiService {
   static const _testPin = '1234';
@@ -11,13 +12,23 @@ class MockApiService implements ApiService {
   final User _user;
   final List<Transaction> _transactions;
   final Set<String> _reportedTransactionIds = {};
+  final ReportPersistenceService _persistence;
   bool _dashboardFails = false;
+  bool _initialized = false;
 
-  MockApiService()
-      : _user = _parseUser(_mockUserJson),
+  MockApiService({ReportPersistenceService? persistence})
+      : _persistence = persistence ?? ReportPersistenceService(),
+        _user = _parseUser(_mockUserJson),
         _transactions = _mockTransactionsJson
             .map((json) => Transaction.fromJson(json))
             .toList();
+
+  Future<void> init() async {
+    if (_initialized) return;
+    final ids = await _persistence.loadReportedIds();
+    _reportedTransactionIds.addAll(ids);
+    _initialized = true;
+  }
 
   void setDashboardFailure(bool shouldFail) {
     _dashboardFails = shouldFail;
@@ -91,6 +102,7 @@ class MockApiService implements ApiService {
     }
 
     _reportedTransactionIds.add(transactionId);
+    await _persistence.saveReportedId(transactionId);
 
     final report = Report(
       id: 'rpt_${DateTime.now().millisecondsSinceEpoch}',

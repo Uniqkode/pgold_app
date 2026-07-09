@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:pgold_app/models/report.dart';
 import 'package:pgold_app/services/api_service.dart';
+import 'package:pgold_app/stores/pin_store.dart';
 import 'package:pgold_app/stores/report_store.dart';
 import 'package:pgold_app/widgets/pin_dialog.dart';
 
@@ -29,18 +30,65 @@ class _ReportScreenState extends State<ReportScreen> {
   }
 
   Future<void> _handleSubmit() async {
+    if (PinStoreManager.shared(widget.apiService).isLocked) {
+      await _showRestrictedDialog();
+      return;
+    }
+
     final confirmed = await _showPinDialog();
-    if (confirmed != true || !mounted) return;
+    if (!mounted) return;
+
+    if (PinStoreManager.shared(widget.apiService).isLocked) {
+      await _showRestrictedDialog();
+      return;
+    }
+
+    if (confirmed != true) return;
 
     await _reportStore.submitReport(widget.transactionId);
     if (!mounted) return;
 
     if (_reportStore.submittedReport != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Report submitted successfully')),
+      await showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+          icon: const Icon(Icons.check_circle,
+              color: Colors.green, size: 48),
+          title: const Text('Report Submitted'),
+          content: const Text(
+            'Your report has been received. We will review it '
+            'and take appropriate action.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Done'),
+            ),
+          ],
+        ),
       );
-      Navigator.of(context).pop(true);
+      if (mounted) Navigator.of(context).pop(true);
     }
+  }
+
+  Future<void> _showRestrictedDialog() async {
+    await showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        icon: Icon(Icons.lock_rounded, size: 48, color: Colors.red[400]),
+        title: const Text('Access Restricted'),
+        content: const Text(
+          'You have been restricted from using the PIN feature '
+          'due to multiple incorrect attempts. Please try again later.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Go Back'),
+          ),
+        ],
+      ),
+    );
   }
 
   Future<bool?> _showPinDialog() {

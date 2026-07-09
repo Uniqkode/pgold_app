@@ -40,7 +40,7 @@ class _PinEntryViewState extends State<PinEntryView>
   @override
   void initState() {
     super.initState();
-    _pinStore = PinStore(widget.apiService);
+    _pinStore = PinStoreManager.shared(widget.apiService);
 
     _shakeController = AnimationController(
       vsync: this,
@@ -79,6 +79,9 @@ class _PinEntryViewState extends State<PinEntryView>
         }
 
         if (_pinStore.isLocked) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) Navigator.of(context).pop();
+          });
           return _buildLocked(theme);
         }
         if (_pinStore.isVerified) {
@@ -256,7 +259,7 @@ class _PinEntryViewState extends State<PinEntryView>
   Widget _buildFingerprintToggle(ThemeData theme) {
     return Container(
       decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceVariant,
+        color: theme.colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(18),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
@@ -266,7 +269,7 @@ class _PinEntryViewState extends State<PinEntryView>
             width: 36,
             height: 36,
             decoration: BoxDecoration(
-              color: theme.colorScheme.primary.withOpacity(0.12),
+              color: theme.colorScheme.primary.withValues(alpha: 0.12),
               shape: BoxShape.circle,
             ),
             child: Icon(
@@ -286,7 +289,7 @@ class _PinEntryViewState extends State<PinEntryView>
           ),
           Switch(
             value: _useFingerprint,
-            activeColor: theme.colorScheme.primary,
+            activeThumbColor: theme.colorScheme.primary,
             onChanged: (value) {
               setState(() {
                 _useFingerprint = value;
@@ -336,7 +339,7 @@ class _PinEntryViewState extends State<PinEntryView>
 
   @override
   void dispose() {
-    _pinStore.reset();
+    _pinStore.clearEntry();
     _shakeController.dispose();
     super.dispose();
   }

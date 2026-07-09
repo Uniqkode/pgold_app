@@ -18,6 +18,7 @@ class _PGoldAppState extends State<PGoldApp> {
   void initState() {
     super.initState();
     _dashboardStore = DashboardStore(_apiService);
+    _apiService.init();
   }
 
   @override

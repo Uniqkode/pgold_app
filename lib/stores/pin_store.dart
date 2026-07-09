@@ -76,11 +76,32 @@ abstract class _PinStore with Store {
   }
 
   @action
-  void reset() {
+  void clearEntry() {
     pinDigits = '';
-    attempts = 0;
     isVerifying = false;
     verificationError = null;
     isVerified = false;
+  }
+
+  @action
+  void reset() {
+    clearEntry();
+    attempts = 0;
+  }
+}
+
+class PinStoreManager {
+  PinStoreManager._();
+
+  static PinStore? _instance;
+
+  static PinStore shared(ApiService apiService) {
+    _instance ??= PinStore(apiService);
+    return _instance!;
+  }
+
+  static void dispose() {
+    _instance?.reset();
+    _instance = null;
   }
 }
