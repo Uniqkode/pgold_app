@@ -44,10 +44,9 @@ class _ReportScreenState extends State<ReportScreen> {
   }
 
   Future<bool?> _showPinDialog() {
-    return showDialog<bool>(
-      context: context,
-      barrierDismissible: false,
-      builder: (ctx) => PinDialog(apiService: widget.apiService),
+    return PinDialog.show(
+      context,
+      apiService: widget.apiService,
     );
   }
 

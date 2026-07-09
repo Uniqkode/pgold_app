@@ -20,13 +20,32 @@ class PinEntryView extends StatefulWidget {
   State<PinEntryView> createState() => _PinEntryViewState();
 }
 
-class _PinEntryViewState extends State<PinEntryView> {
+class _PinEntryViewState extends State<PinEntryView>
+    with SingleTickerProviderStateMixin {
   late final PinStore _pinStore;
+  late final AnimationController _shakeController;
+  late final Animation<double> _shakeAnimation;
+  String? _lastError;
 
   @override
   void initState() {
     super.initState();
     _pinStore = PinStore(widget.apiService);
+
+    _shakeController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 400),
+    );
+
+    _shakeAnimation = TweenSequence<double>([
+      TweenSequenceItem(tween: Tween(begin: 0, end: -12), weight: 1),
+      TweenSequenceItem(tween: Tween(begin: -12, end: 12), weight: 2),
+      TweenSequenceItem(tween: Tween(begin: 12, end: -10), weight: 2),
+      TweenSequenceItem(tween: Tween(begin: -10, end: 10), weight: 2),
+      TweenSequenceItem(tween: Tween(begin: 10, end: 0), weight: 1),
+    ]).animate(
+      CurvedAnimation(parent: _shakeController, curve: Curves.easeInOut),
+    );
   }
 
   void _onDigitPressed(String digit) {
@@ -42,6 +61,12 @@ class _PinEntryViewState extends State<PinEntryView> {
 
     return Observer(
       builder: (_) {
+        if (_pinStore.verificationError != null &&
+            _pinStore.verificationError != _lastError) {
+          _lastError = _pinStore.verificationError;
+          _shakeController.forward(from: 0);
+        }
+
         if (_pinStore.isLocked) {
           return _buildLocked(theme);
         }
@@ -62,15 +87,23 @@ class _PinEntryViewState extends State<PinEntryView> {
       children: [
         if (widget.subtitle != null)
           Padding(
-            padding: const EdgeInsets.only(bottom: 24),
+            padding: const EdgeInsets.only(bottom: 20),
             child: Text(
               widget.subtitle!,
               style: theme.textTheme.bodySmall?.copyWith(
                 color: Colors.grey[600],
               ),
+              textAlign: TextAlign.center,
             ),
           ),
-        _buildPinDots(theme),
+        AnimatedBuilder(
+          animation: _shakeAnimation,
+          builder: (context, child) => Transform.translate(
+            offset: Offset(_shakeAnimation.value, 0),
+            child: child,
+          ),
+          child: _buildPinDots(theme),
+        ),
         if (_pinStore.verificationError != null) ...[
           const SizedBox(height: 12),
           Text(
@@ -85,7 +118,7 @@ class _PinEntryViewState extends State<PinEntryView> {
             style: TextStyle(color: Colors.grey[500], fontSize: 12),
           ),
         ],
-        const SizedBox(height: 24),
+        const SizedBox(height: 20),
         if (_pinStore.isVerifying)
           const Padding(
             padding: EdgeInsets.symmetric(vertical: 32),
@@ -93,6 +126,9 @@ class _PinEntryViewState extends State<PinEntryView> {
           )
         else
           PinKeypad(
+            enabled: !_pinStore.isVerifying,
+            verticalSpacing: 10,
+            horizontalSpacing: 12,
             onDigitPressed: _onDigitPressed,
             onBackspace: _pinStore.removeDigit,
           ),
@@ -114,14 +150,14 @@ class _PinEntryViewState extends State<PinEntryView> {
               color: filled ? theme.colorScheme.primary : Colors.grey[400]!,
               width: filled ? 2 : 1,
             ),
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(12),
           ),
           child: Center(
             child: filled
                 ? Icon(Icons.circle,
-                    size: 16, color: theme.colorScheme.primary)
+                    size: 14, color: theme.colorScheme.primary)
                 : Icon(Icons.circle_outlined,
-                    size: 16, color: Colors.grey[300]),
+                    size: 14, color: Colors.grey[300]),
           ),
         );
       }),
@@ -167,6 +203,7 @@ class _PinEntryViewState extends State<PinEntryView> {
   @override
   void dispose() {
     _pinStore.reset();
+    _shakeController.dispose();
     super.dispose();
   }
 }
