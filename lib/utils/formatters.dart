@@ -14,3 +14,21 @@ String formatDate(String isoString) {
   final formatter = DateFormat('MMM dd, yyyy · hh:mm a');
   return formatter.format(date.toLocal());
 }
+
+String formatDateShort(String isoString) {
+  final date = DateTime.parse(isoString);
+  final formatter = DateFormat('MMM dd, yyyy');
+  return formatter.format(date.toLocal());
+}
+
+String dateGroupLabel(String isoString) {
+  final date = DateTime.parse(isoString).toLocal();
+  final now = DateTime.now();
+  final today = DateTime(now.year, now.month, now.day);
+  final yesterday = today.subtract(const Duration(days: 1));
+  final dateDay = DateTime(date.year, date.month, date.day);
+
+  if (dateDay == today) return 'Today';
+  if (dateDay == yesterday) return 'Yesterday';
+  return DateFormat('MMMM yyyy').format(date);
+}

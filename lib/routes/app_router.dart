@@ -1,18 +1,30 @@
 import 'package:go_router/go_router.dart';
 import 'package:pgold_app/screens/dashboard_screen.dart';
 import 'package:pgold_app/screens/report_screen.dart';
+import 'package:pgold_app/screens/splash_screen.dart';
+import 'package:pgold_app/screens/transfer_history_screen.dart';
 import 'package:pgold_app/screens/transaction_detail_screen.dart';
 import 'package:pgold_app/services/api_service.dart';
 import 'package:pgold_app/stores/dashboard_store.dart';
 
 GoRouter appRouter(ApiService apiService, DashboardStore dashboardStore) {
   return GoRouter(
-    initialLocation: '/dashboard',
+    initialLocation: '/splash',
     routes: [
+      GoRoute(
+        path: '/splash',
+        builder: (context, state) => const SplashScreen(),
+      ),
       GoRoute(
         path: '/dashboard',
         builder: (context, state) => DashboardScreen(
           dashboardStore: dashboardStore,
+        ),
+      ),
+      GoRoute(
+        path: '/transfer-history',
+        builder: (context, state) => TransferHistoryScreen(
+          apiService: apiService,
         ),
       ),
       GoRoute(

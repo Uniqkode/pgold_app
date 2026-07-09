@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pgold_app/utils/colors.dart';
 
 class EmptyStateWidget extends StatelessWidget {
   const EmptyStateWidget({super.key});
@@ -16,13 +17,13 @@ class EmptyStateWidget extends StatelessWidget {
             Icon(
               Icons.receipt_long_outlined,
               size: 48,
-              color: Colors.grey[400],
+              color: AppColors.grey400,
             ),
             const SizedBox(height: 16),
             Text(
               'No transactions yet',
               style: theme.textTheme.bodyLarge?.copyWith(
-                color: Colors.grey[600],
+                color: AppColors.grey600,
               ),
             ),
             const SizedBox(height: 8),
@@ -30,7 +31,7 @@ class EmptyStateWidget extends StatelessWidget {
               'Your recent transactions will appear here.',
               textAlign: TextAlign.center,
               style: theme.textTheme.bodyMedium?.copyWith(
-                color: Colors.grey[500],
+                color: AppColors.grey500,
               ),
             ),
           ],

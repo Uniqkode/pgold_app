@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pgold_app/routes/app_router.dart';
+import 'package:pgold_app/utils/colors.dart';
 import 'package:pgold_app/services/mock_api_service.dart';
 import 'package:pgold_app/stores/dashboard_store.dart';
 
@@ -28,7 +29,7 @@ class _PGoldAppState extends State<PGoldApp> {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF1A237E),
+          seedColor: AppColors.brand,
           brightness: Brightness.light,
         ),
         useMaterial3: true,

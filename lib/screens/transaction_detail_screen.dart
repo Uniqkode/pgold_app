@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pgold_app/services/api_service.dart';
+import 'package:pgold_app/utils/colors.dart';
 import 'package:pgold_app/stores/transaction_detail_store.dart';
 import 'package:pgold_app/utils/formatters.dart';
 import 'package:pgold_app/widgets/status_badge.dart';
@@ -36,9 +37,7 @@ class _TransactionDetailScreenState extends State<TransactionDetailScreen> {
     final theme = Theme.of(context);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Transaction Details'),
-      ),
+      appBar: AppBar(title: const Text('Transaction Details')),
       body: Observer(
         builder: (_) {
           if (_store.isLoading) {
@@ -52,12 +51,17 @@ class _TransactionDetailScreenState extends State<TransactionDetailScreen> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.search_off_rounded,
-                        size: 48, color: Colors.grey[400]),
+                    Icon(
+                      Icons.search_off_rounded,
+                      size: 48,
+                      color: AppColors.grey400,
+                    ),
                     const SizedBox(height: 16),
-                    Text(_store.error!,
-                        textAlign: TextAlign.center,
-                        style: theme.textTheme.bodyLarge),
+                    Text(
+                      _store.error!,
+                      textAlign: TextAlign.center,
+                      style: theme.textTheme.bodyLarge,
+                    ),
                     const SizedBox(height: 24),
                     FilledButton.icon(
                       onPressed: () =>
@@ -89,10 +93,6 @@ class _TransactionDetailScreenState extends State<TransactionDetailScreen> {
                     trailing: StatusBadge(status: txn.status),
                   ),
                   _buildRow('Type', txn.type.displayName),
-                  _buildRow(
-                    'Direction',
-                    txn.direction.name.toUpperCase(),
-                  ),
                   _buildRow('Date', formatDate(txn.date)),
                 ],
               ),
@@ -105,65 +105,65 @@ class _TransactionDetailScreenState extends State<TransactionDetailScreen> {
                     child: Text(
                       txn.description,
                       style: theme.textTheme.bodyMedium?.copyWith(
-                        color: Colors.grey[700],
+                        color: AppColors.grey700,
                       ),
                     ),
                   ),
                 ],
               ),
               const SizedBox(height: 16),
-              _DetailCard(
-                title: 'Report Status',
-                children: [
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      Icon(
-                        txn.hasActiveReport
-                            ? Icons.flag_rounded
-                            : Icons.flag_outlined,
-                        size: 20,
-                        color: txn.hasActiveReport
-                            ? Colors.orange[700]
-                            : Colors.grey[500],
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        txn.hasActiveReport
-                            ? 'Active report filed'
-                            : 'No active report',
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          color: txn.hasActiveReport
-                              ? Colors.orange[700]
-                              : Colors.grey[600],
-                          fontWeight: FontWeight.w500,
+              if (txn.hasActiveReport)
+                _DetailCard(
+                  title: 'Report Status',
+                  children: [
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.warning_amber_rounded,
+                          size: 20,
+                          color: AppColors.reportActive,
                         ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            'This transaction has been reported to our '
+                            'support team. We are reviewing it and will '
+                            'get back to you.',
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              color: AppColors.reportActive,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               if (_store.reportBlockedReason != null) ...[
                 const SizedBox(height: 16),
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: Colors.amber.withValues(alpha: 0.1),
+                    color: AppColors.reportBlockedIcon.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
-                      color: Colors.amber.withValues(alpha: 0.3),
+                      color: AppColors.reportBlockedIcon.withValues(alpha: 0.3),
                     ),
                   ),
                   child: Row(
                     children: [
-                      Icon(Icons.info_outline_rounded,
-                          color: Colors.amber[800], size: 20),
+                      Icon(
+                        Icons.info_outline_rounded,
+                        color: AppColors.reportBlockedIcon,
+                        size: 20,
+                      ),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Text(
                           _store.reportBlockedReason!,
                           style: theme.textTheme.bodySmall?.copyWith(
-                            color: Colors.amber[900],
+                            color: AppColors.reportBlockedText,
                           ),
                         ),
                       ),
@@ -175,7 +175,7 @@ class _TransactionDetailScreenState extends State<TransactionDetailScreen> {
                 const SizedBox(height: 24),
                 SizedBox(
                   width: double.infinity,
-                  child: FilledButton.icon(
+                  child: FilledButton(
                     onPressed: () async {
                       final reported = await context.push<bool>(
                         '/report-transaction/${txn.id}',
@@ -184,8 +184,7 @@ class _TransactionDetailScreenState extends State<TransactionDetailScreen> {
                         _store.markAsReported();
                       }
                     },
-                    icon: const Icon(Icons.flag_rounded),
-                    label: const Text('Report Transaction'),
+                    child: const Text('Report Transaction'),
                   ),
                 ),
               ],
@@ -203,6 +202,7 @@ class _TransactionDetailScreenState extends State<TransactionDetailScreen> {
       padding: const EdgeInsets.symmetric(vertical: 10),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           SizedBox(
             width: 100,
@@ -213,16 +213,16 @@ class _TransactionDetailScreenState extends State<TransactionDetailScreen> {
               ),
             ),
           ),
-          Expanded(
-            child: trailing ??
-                Text(
+          trailing ??
+              Expanded(
+                child: Text(
                   value ?? '',
                   style: theme.textTheme.bodyMedium?.copyWith(
                     fontWeight: FontWeight.w500,
                   ),
                   textAlign: TextAlign.end,
                 ),
-          ),
+              ),
         ],
       ),
     );

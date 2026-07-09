@@ -4,8 +4,15 @@ import 'package:pgold_app/utils/formatters.dart';
 
 class WalletHeader extends StatelessWidget {
   final User user;
+  final bool isBalanceHidden;
+  final VoidCallback onToggleVisibility;
 
-  const WalletHeader({super.key, required this.user});
+  const WalletHeader({
+    super.key,
+    required this.user,
+    this.isBalanceHidden = false,
+    required this.onToggleVisibility,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -28,13 +35,27 @@ class WalletHeader extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Hello, ${user.name}',
-            style: theme.textTheme.titleMedium?.copyWith(
-              color: Colors.white.withValues(alpha: 0.9),
-            ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Image.asset(
+                'assets/images/pgold.webp',
+                width: 28,
+                height: 28,
+              ),
+              GestureDetector(
+                onTap: onToggleVisibility,
+                child: Icon(
+                  isBalanceHidden
+                      ? Icons.visibility_off_rounded
+                      : Icons.visibility_rounded,
+                  color: Colors.white.withValues(alpha: 0.8),
+                  size: 22,
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 16),
           Text(
             'Wallet Balance',
             style: theme.textTheme.bodySmall?.copyWith(
@@ -43,7 +64,7 @@ class WalletHeader extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           Text(
-            formatCurrency(user.walletBalance),
+            isBalanceHidden ? '₦ •••••••' : formatCurrency(user.walletBalance),
             style: theme.textTheme.headlineMedium?.copyWith(
               color: Colors.white,
               fontWeight: FontWeight.bold,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pgold_app/models/transaction.dart';
+import 'package:pgold_app/utils/colors.dart';
 import 'package:pgold_app/utils/formatters.dart';
 import 'package:pgold_app/widgets/status_badge.dart';
 
@@ -17,8 +18,8 @@ class TransactionCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final amountColor = transaction.direction == TransactionDirection.credit
-        ? const Color(0xFF16A34A)
-        : const Color(0xFFDC2626);
+        ? AppColors.amountCredit
+        : AppColors.amountDebit;
     final prefix = transaction.direction == TransactionDirection.credit
         ? '+'
         : '-';
@@ -51,7 +52,7 @@ class TransactionCard extends StatelessWidget {
                     Text(
                       formatDate(transaction.date),
                       style: theme.textTheme.bodySmall?.copyWith(
-                        color: Colors.grey[600],
+                        color: AppColors.grey600,
                       ),
                     ),
                     const SizedBox(height: 8),
@@ -69,23 +70,13 @@ class TransactionCard extends StatelessWidget {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  if (transaction.fee > 0) ...[
-                    const SizedBox(height: 2),
-                    Text(
-                      'Fee: ${formatCurrency(transaction.fee)}',
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: Colors.grey[500],
-                        fontSize: 11,
-                      ),
-                    ),
-                  ],
                   if (transaction.hasActiveReport)
                     Padding(
                       padding: const EdgeInsets.only(top: 6),
                       child: Icon(
-                        Icons.flag_rounded,
+                        Icons.warning_amber_rounded,
                         size: 16,
-                        color: Colors.orange[700],
+                        color: AppColors.reportActive,
                       ),
                     ),
                 ],

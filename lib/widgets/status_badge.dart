@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pgold_app/models/transaction.dart';
+import 'package:pgold_app/utils/colors.dart';
 
 class StatusBadge extends StatelessWidget {
   final TransactionStatus status;
@@ -9,10 +10,10 @@ class StatusBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final (color, label) = switch (status) {
-      TransactionStatus.successful => (const Color(0xFF16A34A), 'Successful'),
-      TransactionStatus.pending => (const Color(0xFFD97706), 'Pending'),
-      TransactionStatus.failed => (const Color(0xFFDC2626), 'Failed'),
-      TransactionStatus.reversed => (const Color(0xFF6B7280), 'Reversed'),
+      TransactionStatus.successful => (AppColors.statusSuccess, 'Successful'),
+      TransactionStatus.pending => (AppColors.statusPending, 'Pending'),
+      TransactionStatus.failed => (AppColors.statusFailed, 'Failed'),
+      TransactionStatus.reversed => (AppColors.statusReversed, 'Reversed'),
     };
 
     return Container(
