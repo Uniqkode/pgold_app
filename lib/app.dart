@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:pgold_app/screens/dashboard_screen.dart';
-import 'package:pgold_app/screens/report_screen.dart';
-import 'package:pgold_app/screens/transaction_detail_screen.dart';
-import 'package:pgold_app/services/api_service.dart';
+import 'package:pgold_app/routes/app_router.dart';
 import 'package:pgold_app/services/mock_api_service.dart';
 import 'package:pgold_app/stores/dashboard_store.dart';
 
@@ -14,7 +11,7 @@ class PGoldApp extends StatefulWidget {
 }
 
 class _PGoldAppState extends State<PGoldApp> {
-  final ApiService _apiService = MockApiService();
+  final _apiService = MockApiService();
   late final DashboardStore _dashboardStore;
 
   @override
@@ -25,7 +22,7 @@ class _PGoldAppState extends State<PGoldApp> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return MaterialApp.router(
       title: 'PGold Wallet',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
@@ -35,29 +32,7 @@ class _PGoldAppState extends State<PGoldApp> {
         ),
         useMaterial3: true,
       ),
-      home: DashboardScreen(dashboardStore: _dashboardStore),
-      onGenerateRoute: (settings) {
-        switch (settings.name) {
-          case '/transaction-details':
-            final id = settings.arguments as String;
-            return MaterialPageRoute<void>(
-              builder: (_) => TransactionDetailScreen(
-                transactionId: id,
-                apiService: _apiService,
-              ),
-            );
-          case '/report-transaction':
-            final args = settings.arguments as Map<String, dynamic>;
-            return MaterialPageRoute<bool>(
-              builder: (_) => ReportScreen(
-                transactionId: args['transactionId'] as String,
-                apiService: args['apiService'] as ApiService,
-              ),
-            );
-          default:
-            return null;
-        }
-      },
+      routerConfig: appRouter(_apiService, _dashboardStore),
     );
   }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:go_router/go_router.dart';
 import 'package:pgold_app/services/api_service.dart';
 import 'package:pgold_app/stores/transaction_detail_store.dart';
 import 'package:pgold_app/utils/formatters.dart';
@@ -176,13 +177,8 @@ class _TransactionDetailScreenState extends State<TransactionDetailScreen> {
                   width: double.infinity,
                   child: FilledButton.icon(
                     onPressed: () async {
-                      final reported = await Navigator.of(context)
-                          .pushNamed<bool>(
-                        '/report-transaction',
-                        arguments: {
-                          'transactionId': txn.id,
-                          'apiService': widget.apiService,
-                        },
+                      final reported = await context.push<bool>(
+                        '/report-transaction/${txn.id}',
                       );
                       if (reported == true) {
                         _store.markAsReported();

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:go_router/go_router.dart';
 import 'package:pgold_app/stores/dashboard_store.dart';
 import 'package:pgold_app/widgets/empty_state_widget.dart';
 import 'package:pgold_app/widgets/error_widget.dart';
@@ -79,10 +80,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   (txn) => TransactionCard(
                     transaction: txn,
                     onTap: () {
-                      Navigator.of(context).pushNamed(
-                        '/transaction-details',
-                        arguments: txn.id,
-                      );
+                      context.push('/transaction-details/${txn.id}');
                     },
                   ),
                 ),
