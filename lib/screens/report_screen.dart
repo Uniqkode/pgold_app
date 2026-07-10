@@ -62,6 +62,7 @@ class _ReportScreenState extends State<ReportScreen> {
   Future<void> _showSuccessDialog() async {
     await showDialog(
       context: context,
+      barrierDismissible: false,
       builder: (ctx) => AlertDialog(
         icon: const Icon(Icons.check_circle, color: AppColors.success, size: 48),
         title: const Text('Report Submitted'),
@@ -71,9 +72,9 @@ class _ReportScreenState extends State<ReportScreen> {
         actions: [
           TextButton(
             onPressed: () {
-              ctx.pop(); // Use GoRouter's pop
+              ctx.pop(); // Close dialog
               if (mounted) {
-                context.go('/dashboard');
+                context.go('/dashboard'); // Navigate to dashboard
               }
             },
             child: const Text('Done'),
@@ -86,6 +87,7 @@ class _ReportScreenState extends State<ReportScreen> {
   Future<void> _showRestrictedDialog() async {
     await showDialog(
       context: context,
+      barrierDismissible: false,
       builder: (ctx) => AlertDialog(
         icon: Icon(Icons.lock_rounded, size: 48, color: AppColors.error),
         title: const Text('Access Restricted'),
@@ -94,7 +96,7 @@ class _ReportScreenState extends State<ReportScreen> {
         ),
         actions: [
           TextButton(
-            onPressed: () => ctx.pop(), // Use GoRouter's pop
+            onPressed: () => ctx.pop(), // Close dialog
             child: const Text('Go Back'),
           ),
         ],
