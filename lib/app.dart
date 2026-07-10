@@ -25,7 +25,7 @@ class _PGoldAppState extends State<PGoldApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
-      title: 'PGold Wallet',
+      title: 'Pgold',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
