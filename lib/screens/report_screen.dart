@@ -47,6 +47,8 @@ class _ReportScreenState extends State<ReportScreen> {
 
     if (confirmed != true) return;
 
+    if (!mounted) return;
+
     await _reportStore.submitReport(widget.transactionId);
     if (!mounted) return;
 
@@ -62,6 +64,7 @@ class _ReportScreenState extends State<ReportScreen> {
   Future<void> _showSuccessDialog() async {
     await showDialog(
       context: context,
+      barrierDismissible: false,
       builder: (ctx) => AlertDialog(
         icon: const Icon(Icons.check_circle, color: AppColors.success, size: 48),
         title: const Text('Report Submitted'),
@@ -86,6 +89,7 @@ class _ReportScreenState extends State<ReportScreen> {
   Future<void> _showRestrictedDialog() async {
     await showDialog(
       context: context,
+      barrierDismissible: false,
       builder: (ctx) => AlertDialog(
         icon: Icon(Icons.lock_rounded, size: 48, color: AppColors.error),
         title: const Text('Access Restricted'),
