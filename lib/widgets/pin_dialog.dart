@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:pgold_app/services/api_service.dart';
 import 'package:pgold_app/widgets/pin_entry_view.dart';
 
@@ -37,7 +38,7 @@ class PinDialog extends StatelessWidget {
       barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
       barrierColor: Colors.black.withValues(alpha: 0.55),
       transitionDuration: const Duration(milliseconds: 240),
-      pageBuilder: (_, _, _) => PinDialog(
+      pageBuilder: (_, __, ___) => PinDialog(
         apiService: apiService,
         title: title,
         amountLabel: amountLabel,
@@ -80,7 +81,7 @@ class PinDialog extends StatelessWidget {
               child: SizedBox.expand(
                 child: PinEntryView(
                   apiService: apiService,
-                  onVerified: () => Navigator.of(context, rootNavigator: true).pop(true),
+                  onVerified: () => context.pop(true), // Use GoRouter's pop
                   title: title,
                   amountLabel: amountLabel,
                   amount: amount,
