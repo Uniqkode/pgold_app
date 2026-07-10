@@ -33,7 +33,7 @@ class _ReportScreenState extends State<ReportScreen> {
 
   Future<void> _handleSubmit() async {
     if (PinStoreManager.shared(widget.apiService).isLocked) {
-      _showRestrictedDialog();
+      if (mounted) await _showRestrictedDialog();
       return;
     }
 
@@ -41,7 +41,7 @@ class _ReportScreenState extends State<ReportScreen> {
     if (!mounted) return;
 
     if (PinStoreManager.shared(widget.apiService).isLocked) {
-      _showRestrictedDialog();
+      if (mounted) await _showRestrictedDialog();
       return;
     }
 
@@ -51,7 +51,7 @@ class _ReportScreenState extends State<ReportScreen> {
     if (!mounted) return;
 
     if (_reportStore.submittedReport != null) {
-      _showSuccessDialog();
+      if (mounted) await _showSuccessDialog();
     } else if (_reportStore.submissionError != null && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(_reportStore.submissionError!)),
@@ -59,8 +59,8 @@ class _ReportScreenState extends State<ReportScreen> {
     }
   }
 
-  void _showSuccessDialog() {
-    showDialog(
+  Future<void> _showSuccessDialog() async {
+    await showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
         icon: const Icon(Icons.check_circle, color: AppColors.success, size: 48),
@@ -70,19 +70,17 @@ class _ReportScreenState extends State<ReportScreen> {
         ),
         actions: [
           TextButton(
-            onPressed: () {
-              Navigator.of(ctx).pop();
-              if (mounted) context.pop(true);
-            },
+            onPressed: () => Navigator.of(ctx, rootNavigator: true).pop(),
             child: const Text('Done'),
           ),
         ],
       ),
     );
+    if (mounted) context.go('/dashboard');
   }
 
-  void _showRestrictedDialog() {
-    showDialog(
+  Future<void> _showRestrictedDialog() async {
+    await showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
         icon: Icon(Icons.lock_rounded, size: 48, color: AppColors.error),
