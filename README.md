@@ -137,6 +137,18 @@ Business logic stays in stores and models — widgets only observe and render.
 - **Centralized colors** — All hardcoded colors extracted to `AppColors` constants
 - **Status badges** — Color-coded chips that size naturally to text content
 
+## Dev Drawer — Simulating Edge Cases
+
+A developer drawer is available from the dashboard (hamburger icon in the AppBar) to test edge cases without modifying code:
+
+| Toggle | What it does |
+|---|---|
+| **Empty Transactions** | Dashboard shows wallet header + inline empty state. Tap again to restore transactions. |
+| **Dashboard Error** | Next dashboard load returns a server error (full-screen error with retry). The toggle resets after the failure. |
+| **Transaction Not Found** | Tapping any transaction card shows the "not found" error screen. Toggle off to restore normal behavior. |
+
+Toggle a simulation on, then refresh or navigate to test the corresponding UI state.
+
 ## Edge Cases Handled
 
 - Empty transaction list → EmptyStateWidget

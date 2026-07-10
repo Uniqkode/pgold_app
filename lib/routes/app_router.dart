@@ -19,6 +19,7 @@ GoRouter appRouter(ApiService apiService, DashboardStore dashboardStore) {
         path: '/dashboard',
         builder: (context, state) => DashboardScreen(
           dashboardStore: dashboardStore,
+          apiService: apiService,
         ),
       ),
       GoRoute(

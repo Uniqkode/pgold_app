@@ -14,6 +14,8 @@ class MockApiService implements ApiService {
   final Set<String> _reportedTransactionIds = {};
   final ReportPersistenceService _persistence;
   bool _dashboardFails = false;
+  bool _simulateEmptyTransactions = false;
+  bool _simulateTransactionNotFound = false;
   bool _initialized = false;
 
   MockApiService({ReportPersistenceService? persistence})
@@ -34,6 +36,14 @@ class MockApiService implements ApiService {
     _dashboardFails = shouldFail;
   }
 
+  void setEmptyTransactions(bool shouldEmpty) {
+    _simulateEmptyTransactions = shouldEmpty;
+  }
+
+  void setTransactionNotFound(bool shouldFail) {
+    _simulateTransactionNotFound = shouldFail;
+  }
+
   @override
   Future<ApiResult<DashboardResponse>> fetchDashboard() async {
     await Future.delayed(const Duration(seconds: 1));
@@ -43,6 +53,10 @@ class MockApiService implements ApiService {
       return const Failure(
         'Unable to load dashboard. Please check your connection and try again.',
       );
+    }
+
+    if (_simulateEmptyTransactions) {
+      return Success(DashboardResponse(user: _user, transactions: []));
     }
 
     final transactions = _transactions
@@ -57,6 +71,10 @@ class MockApiService implements ApiService {
   @override
   Future<ApiResult<Transaction>> fetchTransactionById(String id) async {
     await Future.delayed(const Duration(milliseconds: 500));
+
+    if (_simulateTransactionNotFound) {
+      return const Failure('Transaction not found.');
+    }
 
     final index = _transactions.indexWhere((t) => t.id == id);
     if (index == -1) {
