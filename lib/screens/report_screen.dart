@@ -76,7 +76,11 @@ class _ReportScreenState extends State<ReportScreen> {
         ],
       ),
     );
-    if (mounted) context.go('/dashboard');
+    // Add a small delay to ensure dialog is fully dismissed before navigating
+    if (mounted) {
+      await Future.delayed(const Duration(milliseconds: 100));
+      if (mounted) context.go('/dashboard');
+    }
   }
 
   Future<void> _showRestrictedDialog() async {
