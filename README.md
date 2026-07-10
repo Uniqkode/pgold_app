@@ -128,14 +128,6 @@ Business logic stays in stores and models — widgets only observe and render.
 7. No debugPrint/logging of PIN values ever
 8. Report success shows dialog with checkmark + friendly message
 
-## Key UI Features
-
-- **Hide balance** — Eye toggle in wallet header shows/hides amount with dots
-- **Staggered animations** — Dashboard elements fade in sequentially on load
-- **Date-grouped history** — Transfer History groups by Today, Yesterday, then month
-- **Native splash** — Brand-colored splash with logo before Flutter loads
-- **Centralized colors** — All hardcoded colors extracted to `AppColors` constants
-- **Status badges** — Color-coded chips that size naturally to text content
 
 ## Dev Drawer — Simulating Edge Cases
 
