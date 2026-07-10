@@ -33,7 +33,7 @@ class _ReportScreenState extends State<ReportScreen> {
 
   Future<void> _handleSubmit() async {
     if (PinStoreManager.shared(widget.apiService).isLocked) {
-      if (mounted) await _showRestrictedDialog();
+      await _showRestrictedDialog();
       return;
     }
 
@@ -41,7 +41,7 @@ class _ReportScreenState extends State<ReportScreen> {
     if (!mounted) return;
 
     if (PinStoreManager.shared(widget.apiService).isLocked) {
-      if (mounted) await _showRestrictedDialog();
+      await _showRestrictedDialog();
       return;
     }
 
@@ -51,8 +51,9 @@ class _ReportScreenState extends State<ReportScreen> {
     if (!mounted) return;
 
     if (_reportStore.submittedReport != null) {
-      if (mounted) await _showSuccessDialog();
-    } else if (_reportStore.submissionError != null && mounted) {
+      await _showSuccessDialog();
+    }
+    if (_reportStore.submissionError != null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(_reportStore.submissionError!)),
       );
@@ -72,9 +73,9 @@ class _ReportScreenState extends State<ReportScreen> {
         actions: [
           TextButton(
             onPressed: () {
-              ctx.pop(); // Close dialog
+              Navigator.of(ctx).pop();
               if (mounted) {
-                context.go('/dashboard'); // Navigate to dashboard
+                context.go('/dashboard');
               }
             },
             child: const Text('Done'),
@@ -96,7 +97,7 @@ class _ReportScreenState extends State<ReportScreen> {
         ),
         actions: [
           TextButton(
-            onPressed: () => ctx.pop(), // Close dialog
+            onPressed: () => Navigator.of(ctx).pop(), // Close dialog
             child: const Text('Go Back'),
           ),
         ],

@@ -36,6 +36,7 @@ class _PinEntryViewState extends State<PinEntryView>
   String? _lastError;
   bool _useFingerprint = false;
   bool _showKeypad = true;
+  bool _hasPopped = false;
 
   @override
   void initState() {
@@ -79,15 +80,21 @@ class _PinEntryViewState extends State<PinEntryView>
         }
 
         if (_pinStore.isLocked) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (mounted) Navigator.of(context, rootNavigator: true).pop();
-          });
-          return _buildLocked(theme);
+          if (!_hasPopped) {
+            _hasPopped = true;
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (mounted) Navigator.of(context, rootNavigator: true).pop();
+            });
+          }
+          return const SizedBox.shrink();
         }
         if (_pinStore.isVerified) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            widget.onVerified();
-          });
+          if (!_hasPopped) {
+            _hasPopped = true;
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (mounted) widget.onVerified();
+            });
+          }
           return _buildVerifying(theme);
         }
 
@@ -295,28 +302,6 @@ class _PinEntryViewState extends State<PinEntryView>
                 _useFingerprint = value;
               });
             },
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildLocked(ThemeData theme) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 16),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(Icons.lock_rounded, size: 48, color: Colors.red[400]),
-          const SizedBox(height: 16),
-          const Text(
-            'Too many incorrect attempts.',
-            style: TextStyle(fontWeight: FontWeight.w600),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Please try again later.',
-            style: TextStyle(color: Colors.grey[600]),
           ),
         ],
       ),

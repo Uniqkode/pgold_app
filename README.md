@@ -158,17 +158,17 @@ Toggle a simulation on, then refresh or navigate to test the corresponding UI st
 
 ## Tests
 
-33 tests across 4 test files:
+34 tests across 4 test files:
 
 - `transaction_eligibility_test.dart` — `canBeReported` logic for all status/report combinations, `copyWith`
 - `report_form_validation_test.dart` — form validation, submit flow, double-submit prevention, API error handling, reset
 - `pin_verification_test.dart` — digit entry, PIN verification, wrong PIN, 3-attempt lockout, incomplete PIN, reset
-- `widget_test.dart` — smoke test
+- `widget_test.dart` — Success flow (correct PIN → success dialog), Locked flow (3 wrong PINs → restricted dialog stays open, does not auto-close)
 
 ## Known Trade-offs
 
 - **No DI framework**: Stores are created manually in screens. A package like `provider` or `get_it` would scale better.
-- **No widget tests**: Only unit tests. Widget/integration tests would verify UI behavior.
+- **No integration tests**: Widget tests cover the success and locked dialog flows, but integration tests would verify the complete app flow end-to-end.
 - **Mock data is embedded**: Not loaded from JSON asset at runtime, which simplifies testing but is less realistic.
 
 ## What I'd Improve With More Time
