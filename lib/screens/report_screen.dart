@@ -70,13 +70,17 @@ class _ReportScreenState extends State<ReportScreen> {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(ctx, rootNavigator: true).pop(),
+            onPressed: () {
+              ctx.pop(); // Use GoRouter's pop
+              if (mounted) {
+                context.go('/dashboard');
+              }
+            },
             child: const Text('Done'),
           ),
         ],
       ),
     );
-    if (mounted) context.go('/dashboard');
   }
 
   Future<void> _showRestrictedDialog() async {
@@ -90,7 +94,7 @@ class _ReportScreenState extends State<ReportScreen> {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(ctx).pop(),
+            onPressed: () => ctx.pop(), // Use GoRouter's pop
             child: const Text('Go Back'),
           ),
         ],
