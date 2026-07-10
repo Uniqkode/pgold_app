@@ -70,17 +70,17 @@ class _ReportScreenState extends State<ReportScreen> {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(ctx, rootNavigator: true).pop(),
+            onPressed: () {
+              Navigator.of(ctx, rootNavigator: true).pop();
+              if (mounted) {
+                context.go('/dashboard');
+              }
+            },
             child: const Text('Done'),
           ),
         ],
       ),
     );
-    // Add a small delay to ensure dialog is fully dismissed before navigating
-    if (mounted) {
-      await Future.delayed(const Duration(milliseconds: 100));
-      if (mounted) context.go('/dashboard');
-    }
   }
 
   Future<void> _showRestrictedDialog() async {
