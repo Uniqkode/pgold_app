@@ -80,7 +80,7 @@ class _PinEntryViewState extends State<PinEntryView>
 
         if (_pinStore.isLocked) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (mounted) Navigator.of(context).pop();
+            if (mounted) Navigator.of(context, rootNavigator: true).pop();
           });
           return _buildLocked(theme);
         }

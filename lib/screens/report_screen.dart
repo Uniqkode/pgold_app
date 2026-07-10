@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:go_router/go_router.dart';
 import 'package:pgold_app/models/report.dart';
 import 'package:pgold_app/services/api_service.dart';
 import 'package:pgold_app/stores/pin_store.dart';
@@ -32,7 +33,7 @@ class _ReportScreenState extends State<ReportScreen> {
 
   Future<void> _handleSubmit() async {
     if (PinStoreManager.shared(widget.apiService).isLocked) {
-      await _showRestrictedDialog();
+      _showRestrictedDialog();
       return;
     }
 
@@ -40,7 +41,7 @@ class _ReportScreenState extends State<ReportScreen> {
     if (!mounted) return;
 
     if (PinStoreManager.shared(widget.apiService).isLocked) {
-      await _showRestrictedDialog();
+      _showRestrictedDialog();
       return;
     }
 
@@ -50,41 +51,48 @@ class _ReportScreenState extends State<ReportScreen> {
     if (!mounted) return;
 
     if (_reportStore.submittedReport != null) {
-      await showDialog(
-        context: context,
-        builder: (_) => AlertDialog(
-          icon: const Icon(Icons.check_circle,
-              color: AppColors.success, size: 48),
-          title: const Text('Report Submitted'),
-          content: const Text(
-            'Your report has been received. We will review it '
-            'and take appropriate action.',
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Done'),
-            ),
-          ],
-        ),
+      _showSuccessDialog();
+    } else if (_reportStore.submissionError != null && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(_reportStore.submissionError!)),
       );
-      if (mounted) Navigator.of(context).pop(true);
     }
   }
 
-  Future<void> _showRestrictedDialog() async {
-    await showDialog(
+  void _showSuccessDialog() {
+    showDialog(
       context: context,
-      builder: (_) => AlertDialog(
-        icon: Icon(Icons.lock_rounded, size: 48, color: AppColors.error),
-        title: const Text('Access Restricted'),
+      builder: (ctx) => AlertDialog(
+        icon: const Icon(Icons.check_circle, color: AppColors.success, size: 48),
+        title: const Text('Report Submitted'),
         content: const Text(
-          'You have been restricted from using the PIN feature '
-          'due to multiple incorrect attempts. Please try again later.',
+          'Your report has been received. We will review it and take appropriate action.',
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(context).pop(),
+            onPressed: () {
+              Navigator.of(ctx).pop();
+              if (mounted) context.pop(true);
+            },
+            child: const Text('Done'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showRestrictedDialog() {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        icon: Icon(Icons.lock_rounded, size: 48, color: AppColors.error),
+        title: const Text('Access Restricted'),
+        content: const Text(
+          'You have been restricted from using the PIN feature due to multiple incorrect attempts. Please try again later.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
             child: const Text('Go Back'),
           ),
         ],
@@ -118,8 +126,7 @@ class _ReportScreenState extends State<ReportScreen> {
                 elevation: 0,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(14),
-                  side: BorderSide(
-                      color: Colors.grey.withValues(alpha: 0.15)),
+                  side: BorderSide(color: Colors.grey.withValues(alpha: 0.15)),
                 ),
                 child: Padding(
                   padding: const EdgeInsets.all(20),
@@ -177,20 +184,17 @@ class _ReportScreenState extends State<ReportScreen> {
                   decoration: BoxDecoration(
                     color: Colors.red.withValues(alpha: 0.08),
                     borderRadius: BorderRadius.circular(10),
-                    border: Border.all(
-                        color: Colors.red.withValues(alpha: 0.2)),
+                    border: Border.all(color: Colors.red.withValues(alpha: 0.2)),
                   ),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Icon(Icons.error_outline,
-                          color: Colors.red, size: 20),
+                      const Icon(Icons.error_outline, color: Colors.red, size: 20),
                       const SizedBox(width: 10),
                       Expanded(
                         child: Text(
                           store.submissionError!,
-                          style: TextStyle(
-                              color: Colors.red[800], fontSize: 13),
+                          style: TextStyle(color: Colors.red[800], fontSize: 13),
                         ),
                       ),
                     ],
@@ -242,8 +246,7 @@ class _ReportScreenState extends State<ReportScreen> {
       decoration: BoxDecoration(
         color: Colors.amber.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-            color: Colors.amber.withValues(alpha: 0.25)),
+        border: Border.all(color: Colors.amber.withValues(alpha: 0.25)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,

@@ -80,7 +80,7 @@ class PinDialog extends StatelessWidget {
               child: SizedBox.expand(
                 child: PinEntryView(
                   apiService: apiService,
-                  onVerified: () => Navigator.of(context).pop(true),
+                  onVerified: () => Navigator.of(context, rootNavigator: true).pop(true),
                   title: title,
                   amountLabel: amountLabel,
                   amount: amount,
